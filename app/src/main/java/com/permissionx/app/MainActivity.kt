@@ -1,10 +1,16 @@
 package com.permissionx.app
 
+import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.permissionx.xiao.PermissionX
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,6 +21,30 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        val makeCallBtn = findViewById<Button>(R.id.makeCallBtn)
+        makeCallBtn.setOnClickListener {
+            PermissionX.request(
+                this,
+                Manifest.permission.CALL_PHONE
+            ) { allGranted, deniedList ->
+                if (allGranted) {
+                    call()
+                } else {
+                    Toast.makeText(this, "You denied $deniedList", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun call() {
+        try {
+            val intent = Intent(Intent.ACTION_CALL)
+            intent.data = Uri.parse("tel:10086")
+            startActivity(intent)
+        } catch (e: SecurityException) {
+            e.printStackTrace()
         }
     }
 }
